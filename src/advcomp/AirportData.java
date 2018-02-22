@@ -2,8 +2,16 @@ package advcomp;
 
 public class AirportData {
 
-    String airportName;
-    String airportCode;
-    String longitude;
-    String latitiude;
+    private String airportName;
+    private String airportCode;
+    private Double latititude;
+    private Double longitiude;
+
+    public AirportData(String apName,String apCode, double lat, double lon){
+        this.airportName = apName;
+        this.airportCode = apCode;
+        this.latititude = lat;
+        this.longitiude = lon;
+}
+
 }
