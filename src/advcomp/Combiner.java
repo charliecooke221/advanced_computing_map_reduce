@@ -1,6 +1,5 @@
 package advcomp;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +16,6 @@ public class Combiner {
 
     public void combineOriginAirportPassengerIdsHM(List<Map.Entry<String,String>> orgAirPassPairList){
         // combines the orginAir/passengerId tuples into hashmap
-
 
         ArrayList<String> originAirports = new ArrayList<>();
 
@@ -47,10 +45,16 @@ public class Combiner {
 
         }
 
-        System.out.print(originAirportPassengerIdsHM);
-        System.out.print("\n");
+//        System.out.print(originAirportPassengerIdsHM);
+//        System.out.print("\n");
     }
+
     // job1 take tuples hashmap and condense into key-sting array hashmap
 
     // job 2
+
+
+    public HashMap<String, ArrayList<String>> getOriginAirportPassengerIdsHM() {
+        return originAirportPassengerIdsHM;
+    }
 }
