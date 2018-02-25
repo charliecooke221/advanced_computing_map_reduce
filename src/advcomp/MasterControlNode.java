@@ -19,6 +19,25 @@ public class MasterControlNode {
     public void MapReduce() {
 
         ArrayList<ArrayList<PassengerData>> dataChunks = SplitPassengerArrayListIntoChunks(passengerDataList, threadCount);
+        ArrayList<Map> mappers = new ArrayList<>();
+
+        ArrayList<PassengerData> test1 = dataChunks.get(1);
+
+
+        for(int i = 0; i < threadCount; i++){
+
+            ArrayList<PassengerData> tempPassengerDataArrayList = dataChunks.get(i);
+
+            String threadName = String.format("Mapper%d", i);
+
+            Map map = new Map(tempPassengerDataArrayList, airportDataList,job,threadName);
+            map.start();
+
+            //mappers.add(new Map(tempPassengerDataArrayList,))
+
+            // instantiate new map objects for thread count
+
+        }
 
 
 
@@ -49,7 +68,7 @@ public class MasterControlNode {
             endIndex = endIndex + chunkSize;
         }
 
-        System.out.print(dataChunks.get(0).size());
+        //System.out.print(dataChunks.get(0).size());
         return dataChunks;
 
     }
