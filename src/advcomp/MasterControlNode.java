@@ -1,5 +1,6 @@
 package advcomp;
 
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,10 +20,13 @@ public class MasterControlNode {
     public void MapReduce() {
 
         ArrayList<ArrayList<PassengerData>> dataChunks = SplitPassengerArrayListIntoChunks(passengerDataList, threadCount);
-        ArrayList<Map> mappers = new ArrayList<>();
+
 
         ArrayList<PassengerData> test1 = dataChunks.get(1);
 
+        ArrayList<Mapper> mappers = new ArrayList<>();
+        ArrayList<Thread> mappersThreads = new ArrayList<>();
+        ArrayList<Combiner> combiners = new ArrayList<>();
 
         for(int i = 0; i < threadCount; i++){
 
@@ -30,12 +34,38 @@ public class MasterControlNode {
 
             String threadName = String.format("Mapper%d", i);
 
-            Map map = new Map(tempPassengerDataArrayList, airportDataList,job,threadName);
-            map.start();
+            Mapper map = new Mapper(tempPassengerDataArrayList, airportDataList,job,threadName);
+
+            Thread mapThread = new Thread(map);
+
+            mapThread.start();
+
+            mappers.add(map);
+
+            Combiner combiner = new Combiner(job);
+
+            mappersThreads.add(mapThread);
+            combiners.add(combiner);
 
             //mappers.add(new Map(tempPassengerDataArrayList,))
 
             // instantiate new map objects for thread count
+        }
+
+        for(int i = 0; i < mappersThreads.size(); i++){
+
+            try {
+
+               mappersThreads.get(i).join();
+
+               combiners.get(i).combineOriginAirportPassengerIdsHM(mappers.get(i).getOrgAirport_passengerIdPairList());
+
+
+            }
+            catch (InterruptedException e){
+                e.printStackTrace();
+            }
+
 
         }
 

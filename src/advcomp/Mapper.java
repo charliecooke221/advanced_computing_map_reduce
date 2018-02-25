@@ -2,17 +2,22 @@ package advcomp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.AbstractMap.SimpleEntry;
 
-public class Map implements Runnable {
+public class Mapper implements Runnable {
 
     private Thread t;
     private int job;
     private String threadName;
     private List<PassengerData> passengerDataList = new ArrayList<PassengerData>();
     private List<AirportData> airportDataList = new ArrayList<AirportData>();
-    private HashMap<String, String> hm = new HashMap<String, String>();
+    // private HashMap<String, String> hm = new HashMap<String, String>();
+    private List<Map.Entry<String,String>> orgAirport_passengerIdPairList = new ArrayList<>();
 
-    public Map(ArrayList<PassengerData> passDataList,List<AirportData> airDataList,int jobNo, String name){
+
+    public Mapper(ArrayList<PassengerData> passDataList,List<AirportData> airDataList,int jobNo, String name){
 
         passengerDataList = passDataList;
         airportDataList = airDataList;
@@ -27,8 +32,6 @@ public class Map implements Runnable {
 
         // get all airport codes in airportdatalist
         ArrayList<String> allAirportCodes = getAllAirportCodes(airportDataList);
-
-
 
 
         for(int i = 0; i < passengerDataList.size(); i++){ // for each line
@@ -46,7 +49,11 @@ public class Map implements Runnable {
 
                         if(allAirportCodes.contains(passengerDataLine.getOriginAirport())) // check for airport code inconsistencies
                         {
-                                hm.put(passengerDataLine.getOriginAirport(), passengerDataLine.getPassengerId());
+                                //hm.put(passengerDataLine.getOriginAirport(), passengerDataLine.getPassengerId());
+
+                                // create a list of key,value pairs
+                                Entry<String,String> pair = new SimpleEntry<>(passengerDataLine.getOriginAirport(),passengerDataLine.getPassengerId());
+                                orgAirport_passengerIdPairList.add(pair);
                         }
 
                         break;
@@ -61,7 +68,8 @@ public class Map implements Runnable {
 
         }
 
-        System.out.print(hm);
+//        System.out.print(orgAirport_passengerIdPairList.size());
+//        System.out.print("\n");
 
     }
 
@@ -79,14 +87,14 @@ public class Map implements Runnable {
 
 
         if(!passLine.getPassengerId().matches("([A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][A-Z][A-Z][0-9])") || passLine.getPassengerId().length() != 10){
-            System.out.print("passenger data wrong format" + "\n");
-            System.out.print(passLine.getPassengerId() + "\n");
+//            System.out.print("passenger data wrong format" + "\n");
+//            System.out.print(passLine.getPassengerId() + "\n");
             return false;
         }
 
         if(!passLine.getOriginAirport().matches("([A-Z][A-Z][A-Z])") || passLine.getOriginAirport().length() !=3){
-            System.out.print("origin airport data wrong format" + "\n");
-            System.out.print(passLine.getOriginAirport() + "\n");
+//            System.out.print("origin airport data wrong format" + "\n");
+//            System.out.print(passLine.getOriginAirport() + "\n");
             return false;
         }
         else{
@@ -109,7 +117,11 @@ public class Map implements Runnable {
         return codes;
     }
 
-    public HashMap<String, String> getHm() {
-        return hm;
+    public List<Entry<String, String>> getOrgAirport_passengerIdPairList() {
+        return orgAirport_passengerIdPairList;
     }
+
+    //    public HashMap<String, String> getHm() {
+//        return hm;
+//    }
 }
