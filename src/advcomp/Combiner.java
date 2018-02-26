@@ -43,6 +43,7 @@ public class Combiner {
                 }
 
                 originAirportPassengerIdsHM.put(orgAirport,passengerIDs);
+                //System.out.print(originAirportPassengerIdsHM);
             }
         }
     }

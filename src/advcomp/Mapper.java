@@ -21,6 +21,7 @@ public class Mapper implements Runnable {
     // private HashMap<String, String> hm = new HashMap<String, String>();
     private List<Map.Entry<String,String>> orgAirport_passengerIdPairList = new ArrayList<>();
     private List<Map.Entry<String,FlightData>> flightID_passengerDataList = new ArrayList<>();
+    private List<Map.Entry<String,String>> flightID_passengerIdPairList = new ArrayList<>();
 
 
     public Mapper(ArrayList<PassengerData> passDataList,List<AirportData> airDataList,int jobNo, String name){
@@ -52,7 +53,6 @@ public class Mapper implements Runnable {
                         if(allAirportCodes.contains(passengerDataLine.getOriginAirport())) // check for airport code inconsistencies
                         {
                                 //hm.put(passengerDataLine.getOriginAirport(), passengerDataLine.getPassengerId());
-
                                 // create a list of key,value pairs
                                 Entry<String,String> originPassIdpair = new SimpleEntry<>(passengerDataLine.getOriginAirport(),passengerDataLine.getPassengerId());
                                 orgAirport_passengerIdPairList.add(originPassIdpair);
@@ -83,6 +83,15 @@ public class Mapper implements Runnable {
 
                         Entry<String,FlightData> flightIDPassDataPair = new SimpleEntry<>(passengerDataLine.getFlightId(),flightData);
                         flightID_passengerDataList.add(flightIDPassDataPair);
+
+                    case 3:
+                        // Determine the number of passengers on each flight. get tuples of flight and passenger id.
+
+                        String flightId = passengerDataLine.getFlightId();
+                        String passId = passengerDataLine.getPassengerId();
+                        Entry<String, String> flightPassIdPair = new SimpleEntry<>(flightId, passId);
+                        flightID_passengerIdPairList.add(flightPassIdPair);
+
 
                     default:
                         break;
@@ -158,6 +167,10 @@ public class Mapper implements Runnable {
 
     public List<Entry<String, FlightData>> getFlightID_passengerDataList() {
         return flightID_passengerDataList;
+    }
+
+    public List<Entry<String, String>> getFlightID_passengerIdPairList() {
+        return flightID_passengerIdPairList;
     }
 
     //    public HashMap<String, String> getHm() {

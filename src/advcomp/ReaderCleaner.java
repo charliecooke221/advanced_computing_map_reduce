@@ -27,7 +27,7 @@ public class ReaderCleaner {
             br = new BufferedReader(new FileReader(passengerDataLoc));
             int skippedLineCount = 0;
             while((line = br.readLine()) != null) {
-
+                line = line.toUpperCase();
                 String[] passDataLine = line.split(",");
 
                 // remove empty lines and missing fields
