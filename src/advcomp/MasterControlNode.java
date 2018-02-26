@@ -1,7 +1,7 @@
 package advcomp;
 
 import java.io.FileWriter;
-import java.lang.reflect.Array;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.io.BufferedWriter;
 
 public class MasterControlNode {
 
-    int job = 1;
+    int job = 2;
     int threadCount = 4;
     private ArrayList<PassengerData> passengerDataList;
     private ArrayList<AirportData> airportDataList;
@@ -58,7 +58,15 @@ public class MasterControlNode {
             try {
 
                mappersThreads.get(i).join();
-               combiners.get(i).combineOriginAirportPassengerIdsHM(mappers.get(i).getOrgAirport_passengerIdPairList());
+               switch (job){
+                   case 1:
+                       combiners.get(i).combineOriginAirportPassengerIdsHM(mappers.get(i).getOrgAirport_passengerIdPairList());
+
+                   case 2:
+                       combiners.get(i).combineFlightIDPassengerData(mappers.get(i).getFlightID_passengerDataList());
+                       //System.out.print(mappers.get(i).getFlightID_passengerDataList());
+               }
+
 
             }
             catch (InterruptedException e){
@@ -68,12 +76,13 @@ public class MasterControlNode {
 
         //create reducers for each primary key
 
-
+        ArrayList<Reduce> reducers = new ArrayList<>();
         switch (job){
+
             case 1:  //objective1 each airport in airport data
 
                 ArrayList<String> airportCodes = new ArrayList<>();
-                ArrayList<Reduce> reducers = new ArrayList<>();
+
 
                 // get each possible primary key
                 for (AirportData airObj : airportDataList)
@@ -85,13 +94,30 @@ public class MasterControlNode {
 
                 //create and run reducer for each primary key
                 for(String orgAirport : airportCodes){
-                    Reduce reduce = new Reduce(orgAirport,combiners);
+                    Reduce reduce = new Reduce(orgAirport,combiners,job);
                     reducers.add(reduce);
                 }
 
-                readPresentAndWriteReducersOutput(reducers);
+                readPresentAndWriteReducersOutputJob1(reducers);
 
-            case 2: //objective2 each flight id
+            case 2: //objective2 each reducer is flightid get relevent flightdatas
+
+                ArrayList<String> flightIds = new ArrayList<>();
+
+                for(PassengerData passdata: passengerDataList){
+                    if(!flightIds.contains(passdata.getFlightId())){
+                        flightIds.add(passdata.getFlightId());
+                    }
+                }
+
+                for(String flightId : flightIds) {
+                    Reduce reduce = new Reduce(flightId,combiners,job);
+                    reducers.add(reduce);
+                }
+
+                readPresentAndWriteReducersOutputJob2(reducers);
+
+                //create and run reducer for each primary key
 
             case 3: //task3 flight id
         }
@@ -121,19 +147,19 @@ public class MasterControlNode {
         return dataChunks;
     }
 
-    public void readPresentAndWriteReducersOutput(ArrayList<Reduce> reducers)
+    public void readPresentAndWriteReducersOutputJob1(ArrayList<Reduce> reducers)
     {
         List<Map.Entry<String,Integer>> orgAirport_countList = new ArrayList<>();
 
-        // get each output from reducers
+        // get each outputJob1 from reducers
         for(Reduce reducer : reducers) {
-            orgAirport_countList.add(reducer.getOutput());
+            orgAirport_countList.add(reducer.getOutputJob1());
         }
-        System.out.print(orgAirport_countList); // print reducers combined output
+        System.out.print(orgAirport_countList); // print reducers combined outputJob1
 
-        // write combined output to CSV
+        // write combined outputJob1 to CSV
         try {
-            BufferedWriter br = new BufferedWriter(new FileWriter("Output.csv"));
+            BufferedWriter br = new BufferedWriter(new FileWriter("Output1.csv"));
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<String,Integer>  entry : orgAirport_countList) {
                 sb.append(entry.getKey());
@@ -147,5 +173,32 @@ public class MasterControlNode {
         catch (java.io.IOException e){
             e.printStackTrace();
         }
+    }
+
+    public void readPresentAndWriteReducersOutputJob2(ArrayList<Reduce> reducers)
+    {
+        StringBuilder sb = new StringBuilder();
+        for(Reduce reducer : reducers) {
+
+                for(ArrayList<String> flight : reducer.getOutputJob2()){
+                    System.out.print(flight + "\n"); // print each flight to console
+                    for(String value : flight){
+                        sb.append(value);
+                        sb.append(",");
+                    }
+                    sb.append("\n");
+                }
+        }
+        try {
+            BufferedWriter br = new BufferedWriter(new FileWriter("Output2.csv"));
+            br.write(sb.toString());
+            br.close();
+        }
+        catch (java.io.IOException e){
+            e.printStackTrace();
+        }
+
+
+
     }
 }

@@ -34,7 +34,25 @@ public class ReaderCleaner {
                 if (passDataLine.length == 6 && !isEmptyStringArray(passDataLine))
                 {
                     // convert line to PassengerData object and add to array list
-                    pd = new PassengerData(passDataLine[0],passDataLine[1],passDataLine[2],passDataLine[3],Integer.parseInt(passDataLine[4]),Integer.parseInt(passDataLine[5]));
+                    // check int fields only contain numbers
+                    int depTime = 0;
+                    int totFlightTime= 0;
+                    try
+                    {
+                        depTime = Integer.parseInt(passDataLine[4]);
+                    } catch (NumberFormatException ex)
+                    {
+                        System.out.print("incorrect time format");
+                    }
+                    try
+                    {
+                        totFlightTime = Integer.parseInt(passDataLine[5]);
+                    } catch (NumberFormatException ex)
+                    {
+                        System.out.print("incorrect time format");
+                    }
+
+                    pd = new PassengerData(passDataLine[0],passDataLine[1],passDataLine[2],passDataLine[3],depTime,totFlightTime);
                     PassengerDataList.add(pd);
                 }
                 else
